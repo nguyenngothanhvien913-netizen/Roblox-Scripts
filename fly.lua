@@ -71,23 +71,29 @@ FlyBtn.MouseButton1Click:Connect(function()
         local bg = Instance.new("BodyGyro", torso)
         bg.maxTorque = Vector3.new(math.huge, math.huge, math.huge)
         bg.cframe = torso.CFrame
-        
         spawn(function()
-            while flying and task.wait() do
-                speed = tonumber(SpeedInput.Text) or 50
-                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.PlatformStand = true
-                end
-                bv.velocity = workspace.CurrentCamera.CFrame.LookVector * speed
-                bg.cframe = workspace.CurrentCamera.CFrame
+    while flying and task.wait() do
+        local character = player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        speed = tonumber(SpeedInput.Text) or 50
+        
+        if humanoid and torso then
+            humanoid.PlatformStand = true
+            
+            -- Kiểm tra xem bro có đang chạm vào joystick/bấm nút di chuyển không
+            if humanoid.MoveDirection.Magnitude > 0 then
+                -- Có bấm nút: Bay theo hướng di chuyển chuẩn
+                bv.velocity = humanoid.MoveDirection * speed
+            else
+                -- Buông tay: Nhân vật đứng im tại chỗ, không bị trôi tự động
+                bv.velocity = Vector3.new(0, 0, 0)
             end
-            if bv then bv:Destroy() end
-            if bg then bg:Destroy() end
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then humanoid.PlatformStand = false end
-        end)
-    else
+            
+            bg.cframe = workspace.CurrentCamera.CFrame
+        end
+                    end
+                    
+        
         FlyBtn.Text = "Bật Fly"
         FlyBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
     end
